@@ -36,7 +36,7 @@ extension DictionaryReflectable {
     private func mapDictionary(mirror: Mirror) -> [String: Any] {
         var result = [String: Any]()
         for child in mirror.children {
-            guard let key = child.label, !key.isEmpty else {
+            guard let key = child.label else {
                 continue
             }
             if let value = child.value as? AssociatedValueReflectable {
