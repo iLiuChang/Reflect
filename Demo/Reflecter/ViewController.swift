@@ -29,6 +29,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor.white
         let person = Person(name: "liuchang", age: 30, stature: 175, pId: 1)
         let dict = person.transformToDictionary()
         print(dict)
