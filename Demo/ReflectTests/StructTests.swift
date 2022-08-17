@@ -25,7 +25,7 @@ class StructTests: XCTestCase {
 
     func testStruct() throws {
         let person = StructPerson(name: "liuchang", age: 30, stature: 175)
-        let dict = person.transformToDictionary()
+        let dict = person.reflectToDictionary()
         XCTAssert(dict["name"] as! String == "liuchang")
         XCTAssert(dict["age"] as! Int == 30)
         XCTAssert(dict["stature"] as! Int == 175)

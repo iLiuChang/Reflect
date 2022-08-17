@@ -28,7 +28,7 @@ class ClassTests: XCTestCase {
         person.name = "jack"
         person.age = 18
         person.stature = 180
-        let dict = person.transformToDictionary()
+        let dict = person.reflectToDictionary()
         XCTAssert(dict["name"] as! String == "jack")
         XCTAssert(dict["age"] as! Int == 18)
         XCTAssert(dict["stature"] as! Int == 180)
@@ -44,7 +44,7 @@ class ClassTests: XCTestCase {
         person.age = 18
         person.stature = 180
         person.grade = 2
-        let dict = person.transformToDictionary()
+        let dict = person.reflectToDictionary()
         XCTAssert(dict["name"] as! String == "jack")
         XCTAssert(dict["age"] as! Int == 18)
         XCTAssert(dict["stature"] as! Int == 180)
@@ -74,7 +74,7 @@ class ClassTests: XCTestCase {
         
         school.students = [person, person2]
         
-        let dict = school.transformToDictionary()
+        let dict = school.reflectToDictionary()
         
         XCTAssert(dict["name"] as! String == "Peking University")
 

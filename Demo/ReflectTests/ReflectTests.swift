@@ -1,14 +1,14 @@
 //
-//  ReflecterTests.swift
-//  ReflecterTests
+//  ReflectTests.swift
+//  ReflectTests
 //
-//  Created by LC on 2022/8/15.
+//  Created by 刘畅 on 2022/8/17.
 //
 
 import XCTest
-@testable import Reflecter
+@testable import Reflect
 
-class ReflecterTests: XCTestCase {
+class ReflectTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -28,7 +28,7 @@ class ReflecterTests: XCTestCase {
         let person = Person(name: "liuchang", age: 30, stature: 175)
         self.measure {
             (0..<10000).forEach { _ in
-                let _ = person.transformToDictionary()
+                let _ = person.reflectToDictionary()
             }
         }
     }
@@ -52,5 +52,6 @@ class ReflecterTests: XCTestCase {
             }
         }
     }
+
 
 }

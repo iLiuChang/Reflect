@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  Reflecter
+//  Reflect
 //
-//  Created by LC on 2022/8/15.
+//  Created by 刘畅 on 2022/8/17.
 //
 
 import UIKit
@@ -20,7 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         return true
     }
-
 
 
 

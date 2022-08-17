@@ -1,8 +1,8 @@
 //
 //  ViewController.swift
-//  Reflecter
+//  Reflect
 //
-//  Created by LC on 2022/8/15.
+//  Created by 刘畅 on 2022/8/17.
 //
 
 import UIKit
@@ -90,10 +90,11 @@ class ViewController: UIViewController {
         
         school.schoolmaster = Person(name: "liu", age: 50, stature: 175, pId: 1)
         
-        let dict = school.transformToDictionary()
+        let dict = school.reflectToDictionary()
 
         print(dict)
     }
+
 
 }
 

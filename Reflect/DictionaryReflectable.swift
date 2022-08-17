@@ -10,14 +10,14 @@ import Foundation
 
 public protocol DictionaryReflectable: AssociatedValueReflectable {
     
-    func transformToDictionary() -> [String: Any]
+    func reflectToDictionary() -> [String: Any]
         
     func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)?
 }
 
 extension DictionaryReflectable {
     
-    func transformToDictionary() -> [String: Any] {
+    func reflectToDictionary() -> [String: Any] {
         if let value = associatedValue as? [String: Any] {
             return value
         }
