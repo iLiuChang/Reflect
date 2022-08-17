@@ -15,7 +15,7 @@ public protocol DictionaryReflectable: AssociatedValueReflectable {
     func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)?
 }
 
-extension DictionaryReflectable {
+public extension DictionaryReflectable {
     
     func reflectToDictionary() -> [String: Any] {
         if let value = associatedValue as? [String: Any] {
