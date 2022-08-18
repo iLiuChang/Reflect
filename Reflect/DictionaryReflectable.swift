@@ -10,8 +10,48 @@ import Foundation
 
 public protocol DictionaryReflectable: AssociatedValueReflectable {
     
+    /// Returns the Dictionary.
+    ///
+    /// Example:
+    /// ```
+    ///    struct Person: DictionaryReflectable {
+    ///        let name: String
+    ///        let age: Int
+    ///        let stature: Int
+    ///    }
+    ///
+    ///    let person = Person(name: "liuchang", age: 30, stature: 175)
+    ///    let dict = person.reflectToDictionary()
+    ///    print(dict) // ["age": 30, "name": "liuchang", "stature": 175]
+    /// ```
+    ///
     func reflectToDictionary() -> [String: Any]
-        
+       
+    /// If the default model-to-dictionary transform does not fit to your model, implement
+    /// this method to do additional process.
+    ///
+    /// Example:
+    /// ```
+    ///    struct Person: DictionaryReflectable {
+    ///        let name: String
+    ///        let age: Int
+    ///        let stature: Int
+    ///        let pId: Int
+    ///
+    ///        func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)? {
+    ///            if (key == "name") { // modify value
+    ///                return (key, "jack")
+    ///            } else if (key == "pId") { // modify key
+    ///                return ("id", value)
+    ///            } else if (key == "stature") { // blacklist
+    ///                return nil
+    ///            }
+    ///            return nil
+    ///        }
+    ///    }
+    /// ```
+    /// If return `nil` will use default value.
+    ///
     func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)?
 }
 
