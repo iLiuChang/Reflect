@@ -24,13 +24,16 @@ extension Dictionary: AssociatedValueReflectable where Value: AssociatedValueRef
     public var associatedValue: Any { return mapValues { $0.associatedValue } }
 }
 
+extension Int: AssociatedValueReflectable { public var associatedValue: Any { return self } }
 extension Int8: AssociatedValueReflectable { public var associatedValue: Any { return self } }
 extension Int16: AssociatedValueReflectable { public var associatedValue: Any { return self } }
 extension Int32: AssociatedValueReflectable { public var associatedValue: Any { return self } }
-extension Int: AssociatedValueReflectable { public var associatedValue: Any { return self } }
+extension Int64: AssociatedValueReflectable { public var associatedValue: Any { return self } }
+extension UInt: AssociatedValueReflectable { public var associatedValue: Any { return self } }
+extension UInt8: AssociatedValueReflectable { public var associatedValue: Any { return self } }
 extension UInt16: AssociatedValueReflectable { public var associatedValue: Any { return self } }
 extension UInt32: AssociatedValueReflectable { public var associatedValue: Any { return self } }
-extension UInt: AssociatedValueReflectable { public var associatedValue: Any { return self } }
+extension UInt64: AssociatedValueReflectable { public var associatedValue: Any { return self } }
 extension Double: AssociatedValueReflectable { public var associatedValue: Any { return self } }
 extension Float: AssociatedValueReflectable { public var associatedValue: Any { return self } }
 extension String: AssociatedValueReflectable { public var associatedValue: Any { return self } }
