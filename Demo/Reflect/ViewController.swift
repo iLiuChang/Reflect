@@ -21,9 +21,9 @@ class ViewController: UIViewController {
             } else if (key == "pId") { // modify key
                 return ("id", value)
             } else if (key == "stature") { // blacklist
-                return nil
+                return (key, nil)
             }
-            return nil
+            return nil // default value
         }
     }
 
@@ -62,9 +62,6 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
-//        let person = Person(name: "liuchang", age: 30, stature: 175, pId: 1)
-//        let dict = person.transformToDictionary()
-//        print(dict)
         // Do any additional setup after loading the view.
         
         let school = School()
@@ -93,8 +90,15 @@ class ViewController: UIViewController {
         let dict = school.reflectToDictionary()
 
         print(dict)
+        
+        testPerson()
     }
 
+    func testPerson() {
+        let person = Person(name: "liuchang", age: 30, stature: 175, pId: 1)
+        let dict = person.reflectToDictionary()
+        print(dict) // ["age": 30, "name": "jack", "id": 1]
+    }
 
 }
 

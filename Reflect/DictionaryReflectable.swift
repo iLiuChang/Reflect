@@ -14,15 +14,15 @@ public protocol DictionaryReflectable: AssociatedValueReflectable {
     ///
     /// Example:
     /// ```
-    ///    struct Person: DictionaryReflectable {
-    ///        let name: String
-    ///        let age: Int
-    ///        let stature: Int
-    ///    }
+    /// struct Person: DictionaryReflectable {
+    ///     let name: String
+    ///     let age: Int
+    ///     let stature: Int
+    /// }
     ///
-    ///    let person = Person(name: "liuchang", age: 30, stature: 175)
-    ///    let dict = person.reflectToDictionary()
-    ///    print(dict) // ["age": 30, "name": "liuchang", "stature": 175]
+    /// let person = Person(name: "liuchang", age: 30, stature: 175)
+    /// let dict = person.reflectToDictionary()
+    /// print(dict) // ["age": 30, "name": "liuchang", "stature": 175]
     /// ```
     ///
     func reflectToDictionary() -> [String: Any]
@@ -32,23 +32,26 @@ public protocol DictionaryReflectable: AssociatedValueReflectable {
     ///
     /// Example:
     /// ```
-    ///    struct Person: DictionaryReflectable {
-    ///        let name: String
-    ///        let age: Int
-    ///        let stature: Int
-    ///        let pId: Int
+    /// struct Person: DictionaryReflectable {
+    ///     let name: String
+    ///     let age: Int
+    ///     let stature: Int
+    ///     let pId: Int
     ///
-    ///        func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)? {
-    ///            if (key == "name") { // modify value
-    ///                return (key, "jack")
-    ///            } else if (key == "pId") { // modify key
-    ///                return ("id", value)
-    ///            } else if (key == "stature") { // blacklist
-    ///                return nil
-    ///            }
-    ///            return nil
-    ///        }
-    ///    }
+    ///     func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)? {
+    ///         if (key == "name") { // modify value
+    ///             return (key, "jack")
+    ///         } else if (key == "pId") { // modify key
+    ///             return ("id", value)
+    ///         } else if (key == "stature") { // blacklist
+    ///             return (key, nil)
+    ///         }
+    ///         return nil // default value
+    ///     }
+    /// }
+    /// let person = Person(name: "liuchang", age: 30, stature: 175, pId: 1)
+    /// let dict = person.reflectToDictionary()
+    /// print(dict) // ["age": 30, "name": "jack", "id": 1]
     /// ```
     /// If return `nil` will use default value.
     ///
@@ -57,16 +60,16 @@ public protocol DictionaryReflectable: AssociatedValueReflectable {
 
 public extension DictionaryReflectable {
     
+    var associatedValue: Any {
+        let mirror = Mirror(reflecting: self)
+        return mapDictionary(mirror: mirror)
+    }
+
     func reflectToDictionary() -> [String: Any] {
         if let value = associatedValue as? [String: Any] {
             return value
         }
         return [String: Any]()
-    }
-
-    var associatedValue: Any {
-        let mirror = Mirror(reflecting: self)
-        return mapDictionary(mirror: mirror)
     }
 
     func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)? {
