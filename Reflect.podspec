@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Reflect"
-  s.version      = "1.0.0"
+  s.version      = "1.1.0"
   s.summary      = "Model to Dictionary in Swift."
   s.homepage     = "https://github.com/iLiuChang/Reflect"
   s.license      = "MIT"
