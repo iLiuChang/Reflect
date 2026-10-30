@@ -113,7 +113,7 @@
 				5887CE1F28AC71EA0018DB74 /* DictionaryReflectable.swift */,
 			);
 			name = Reflect;
-			path = ../../Reflect;
+			path = ../../Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

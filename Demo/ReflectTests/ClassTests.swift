@@ -9,87 +9,102 @@ import XCTest
 
 class ClassTests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    class ClassPerson: DictionaryReflectable {
+    class Person: DictionaryReflectable {
         var name: String?
         var age: Int?
         var stature: Int?
     }
 
-    func testExample() throws {
-        let person = ClassPerson()
+    func testNonNilOptionalProperties() {
+        let person = Person()
         person.name = "jack"
         person.age = 18
         person.stature = 180
         let dict = person.reflectToDictionary()
-        XCTAssert(dict["name"] as! String == "jack")
-        XCTAssert(dict["age"] as! Int == 18)
-        XCTAssert(dict["stature"] as! Int == 180)
+        XCTAssertEqual(dict["name"] as? String, "jack")
+        XCTAssertEqual(dict["age"] as? Int, 18)
+        XCTAssertEqual(dict["stature"] as? Int, 180)
     }
 
-    class Student: ClassPerson {
+    func testNilOptionalPropertyIsOmitted() {
+        let person = Person()
+        person.name = "jack"
+        let dict = person.reflectToDictionary()
+        XCTAssertEqual(dict["name"] as? String, "jack")
+        XCTAssertNil(dict["age"])
+        XCTAssertNil(dict["stature"])
+    }
+
+    class Student: Person {
         var grade: Int?
     }
-    
-    func testExample2() throws {
-        let person = Student()
-        person.name = "jack"
-        person.age = 18
-        person.stature = 180
-        person.grade = 2
-        let dict = person.reflectToDictionary()
-        XCTAssert(dict["name"] as! String == "jack")
-        XCTAssert(dict["age"] as! Int == 18)
-        XCTAssert(dict["stature"] as! Int == 180)
-        XCTAssert(dict["grade"] as! Int == 2)
+
+    func testInheritedStoredProperties() {
+        let student = Student()
+        student.name = "jack"
+        student.age = 18
+        student.stature = 180
+        student.grade = 2
+        let dict = student.reflectToDictionary()
+        XCTAssertEqual(dict["name"] as? String, "jack")
+        XCTAssertEqual(dict["age"] as? Int, 18)
+        XCTAssertEqual(dict["stature"] as? Int, 180)
+        XCTAssertEqual(dict["grade"] as? Int, 2)
     }
 
     class School: DictionaryReflectable {
         var students: [Student]?
         var name: String?
     }
-    
-    func testArray() throws {
+
+    func testArrayOfModels() throws {
         let school = School()
         school.name = "Peking University"
-        
-        let person = Student()
-        person.name = "jack"
-        person.age = 23
-        person.stature = 180
-        person.grade = 2
 
-        let person2 = Student()
-        person2.name = "zhang"
-        person2.age = 25
-        person2.stature = 182
-        person2.grade = 3
-        
-        school.students = [person, person2]
-        
+        let jack = Student()
+        jack.name = "jack"
+        jack.age = 23
+        jack.stature = 180
+        jack.grade = 2
+
+        let zhang = Student()
+        zhang.name = "zhang"
+        zhang.age = 25
+        zhang.stature = 182
+        zhang.grade = 3
+
+        school.students = [jack, zhang]
         let dict = school.reflectToDictionary()
-        
-        XCTAssert(dict["name"] as! String == "Peking University")
+        XCTAssertEqual(dict["name"] as? String, "Peking University")
 
-        let p1 = (dict["students"] as! Array<Dictionary<String, Any>>).first!
-        
-        XCTAssert(p1["name"] as! String == "jack")
-        XCTAssert(p1["age"] as! Int == 23)
-        XCTAssert(p1["stature"] as! Int == 180)
+        let students = try XCTUnwrap(dict["students"] as? [[String: Any]])
+        XCTAssertEqual(students.count, 2)
+        XCTAssertEqual(students[0]["name"] as? String, "jack")
+        XCTAssertEqual(students[0]["age"] as? Int, 23)
+        XCTAssertEqual(students[0]["stature"] as? Int, 180)
+        XCTAssertEqual(students[0]["grade"] as? Int, 2)
+        XCTAssertEqual(students[1]["name"] as? String, "zhang")
+        XCTAssertEqual(students[1]["grade"] as? Int, 3)
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    class Parent: DictionaryReflectable {
+        var id: Int = 1
+
+        func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)? {
+            if key == "name" {
+                return ("id", value)
+            }
+            return nil
         }
     }
 
+    class Child: Parent {
+        var name: String = "child"
+    }
+
+    func testSubclassValueReplacesSuperclassKey() {
+        let dict = Child().reflectToDictionary()
+        XCTAssertEqual(dict["id"] as? String, "child")
+        XCTAssertNil(dict["name"])
+    }
 }

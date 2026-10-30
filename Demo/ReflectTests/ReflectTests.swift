@@ -6,7 +6,6 @@
 //
 
 import XCTest
-@testable import Reflect
 
 class ReflectTests: XCTestCase {
 
