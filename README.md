@@ -1,8 +1,8 @@
 # Reflect
 
-![Swift](https://img.shields.io/badge/Swift-5.5%2B-orange.svg)
-![Platform](https://img.shields.io/badge/Platform-iOS%2011.0%2B-lightgrey.svg)
-![Version](https://img.shields.io/badge/Version-1.2.0-blue.svg)
+![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange.svg)
+![Platform](https://img.shields.io/badge/Platform-Apple-lightgrey.svg)
+![Version](https://img.shields.io/badge/Version-2.0.0-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![SPM](https://img.shields.io/badge/SPM-supported-brightgreen.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-supported-blueviolet.svg)
@@ -21,13 +21,17 @@ Turn a Swift model into a `[String: Any]` dictionary with `Mirror`. Conform to `
 - **Collections** — `Array`, `Set`, and `Dictionary` export elements that conform to `AssociatedValueReflectable`
 - **Optionals** — `nil` properties and `nil` collection elements are omitted
 - **Raw enums** — declare `AssociatedValueReflectable` and the raw value is exported
-- **Key and value changes** — implement `willUpdateValue(_:forKey:)` to rename a key, replace a value, or drop a property
+- **Key and value changes** — implement `willUpdateValue(_:forKey:)` to rename a key or replace a value
 - **Inheritance** — superclass properties are written first, so a subclass value replaces the same key
 
 ## Requirements
 
-- iOS 11.0+
-- Swift 5.5+
+- iOS 12.0+
+- macOS 10.13+
+- tvOS 12.0+
+- watchOS 4.0+
+- visionOS 1.0+
+- Swift 5.9+
 
 ## Installation
 
@@ -55,7 +59,7 @@ Or add it to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/iLiuChang/Reflect.git", from: "1.2.0")
+    .package(url: "https://github.com/iLiuChang/Reflect.git", from: "2.0.0")
 ]
 ```
 
