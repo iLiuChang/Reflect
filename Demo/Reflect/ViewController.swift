@@ -20,8 +20,6 @@ class ViewController: UIViewController {
                 return (key, "jack")
             } else if (key == "pId") { // modify key
                 return ("id", value)
-            } else if (key == "stature") { // blacklist
-                return (key, nil)
             }
             return nil // default value
         }
@@ -97,7 +95,7 @@ class ViewController: UIViewController {
     func testPerson() {
         let person = Person(name: "liuchang", age: 30, stature: 175, pId: 1)
         let dict = person.reflectToDictionary()
-        print(dict) // ["age": 30, "name": "jack", "id": 1]
+        print(dict) // ["age": 30, "name": "jack", "stature": 175, "id": 1]
     }
 
 }

@@ -30,18 +30,16 @@ public protocol DictionaryReflectable: AssociatedValueReflectable {
     ///
     func reflectToDictionary() -> [String: Any]
        
-    /// Adjust one stored property before it is written.
+    /// Adjust one stored property before it is written. Every stored property is passed
+    /// here, including `nil` and types that do not conform to `AssociatedValueReflectable`.
     ///
-    /// Return `nil` to keep the default export (`associatedValue`).
+    /// Return `nil` to keep the default export. Conforming values use `associatedValue`.
+    /// `nil` and non-conforming values, such as `Date`, are omitted.
     /// Return `(key, nil)` to drop that property.
-    /// Return `(newKey, value)` to rename it. `value` is stored as given and is not
-    /// passed through `associatedValue`, so return an already-exported dictionary when
-    /// a nested model should not remain an object.
-    ///
-    /// A `nil` property is omitted unless this method returns a replacement, such as
-    /// `(key, NSNull())`, when the encoded JSON must contain `null`. A value that does not
-    /// conform to `AssociatedValueReflectable` (including `Date`, `URL`, `UUID`, `Data`,
-    /// and `Decimal`) is skipped, so this method does not see it.
+    /// Return `(newKey, value)` to write `value` as given. Use this to turn a `Date` into
+    /// a string, or a `nil` property into `NSNull()`, without adopting the protocol.
+    /// A nested model returned here stays an object; return its dictionary when that
+    /// property should still be exported.
     ///
     /// Swift installs this requirement on the class that declares `DictionaryReflectable`.
     /// A subclass implementation is used only when it `override`s a superclass implementation.
@@ -96,21 +94,16 @@ public extension DictionaryReflectable {
         for child in mirror.children {
             guard let key = child.label else { continue }
             let raw = child.value
-            if let optional = raw as? NilCheckable, optional.isNil {
-                if let (newKey, newValue) = willUpdateValue(raw, forKey: key), !newKey.isEmpty, let newValue {
-                    result[newKey] = newValue
-                }
-                continue
-            }
-            guard let value = raw as? AssociatedValueReflectable else { continue }
-
             if let (newKey, newValue) = willUpdateValue(raw, forKey: key), !newKey.isEmpty {
                 if let newValue = newValue {
                     result[newKey] = newValue
                 }
-            } else {
-                result[key] = value.associatedValue
+                continue
             }
+            if let optional = raw as? NilCheckable, optional.isNil { continue }
+            guard let value = raw as? AssociatedValueReflectable,
+                  let exported = ReflectExport.omittingNil(value) else { continue }
+            result[key] = exported
         }
         return result
     }

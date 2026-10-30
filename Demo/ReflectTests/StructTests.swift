@@ -183,6 +183,22 @@ class StructTests: XCTestCase {
         let total: Money
     }
 
+    struct Event: DictionaryReflectable {
+        let created: Date
+
+        func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)? {
+            guard key == "created", value is Date else { return nil }
+            return ("createdAt", "1970-01-01T00:00:00Z")
+        }
+    }
+
+    func testNonConformingPropertyCanBeCustomized() {
+        let unused = Date(timeIntervalSince1970: 0)
+        let dict = Event(created: unused).reflectToDictionary()
+        XCTAssertNil(dict["created"])
+        XCTAssertEqual(dict["createdAt"] as? String, "1970-01-01T00:00:00Z")
+    }
+
     func testCustomAssociatedValue() {
         let dict = Receipt(total: Money(amount: Decimal(105) / Decimal(10))).reflectToDictionary()
         XCTAssertEqual(dict["total"] as? String, "10.5")

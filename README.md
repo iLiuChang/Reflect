@@ -82,7 +82,7 @@ let dict = person.reflectToDictionary()
 print(dict) // ["age": 30, "name": "liuchang", "stature": 175]
 ```
 
-`false`, `0`, and `""` are kept. Computed properties are skipped. `Date`, `URL`, `UUID`, `Data`, and `Decimal` are not exported until you adopt `AssociatedValueReflectable` for them.
+`false`, `0`, and `""` are kept. Computed properties are skipped. `Date`, `URL`, `UUID`, `Data`, and `Decimal` are omitted unless `willUpdateValue` returns a value for them, or you adopt `AssociatedValueReflectable`.
 
 ### Nested Model
 
@@ -178,7 +178,7 @@ let dict = person.reflectToDictionary()
 
 Return `nil` to keep the default export. The value you return is stored as given. Return `friend.reflectToDictionary()` when a renamed nested model should still be a dictionary.
 
-`willUpdateValue` is called for a `nil` property, so it can replace that property with `NSNull()`. It is not called for a type that does not conform to `AssociatedValueReflectable`. On a class, implement it on the class that declares `DictionaryReflectable`. A subclass method is used only when it overrides that implementation.
+`willUpdateValue` is called for every stored property. Return `nil` and a non-conforming value, such as `Date`, stays omitted. Return a string, `NSNull()`, or any other value to write that property yourself. On a class, implement it on the class that declares `DictionaryReflectable`. A subclass method is used only when it overrides that implementation.
 
 ## API Reference
 
@@ -210,7 +210,7 @@ These types conform and export themselves: `Int`, `Int8`, `Int16`, `Int32`, `Int
 
 `reflectToDictionary()` walks the stored properties of `Mirror(reflecting:)`. Superclass properties are collected first, then the current type's properties overwrite the same keys. Each value that conforms to `AssociatedValueReflectable` is replaced by `associatedValue`, which is how nested models and collections expand.
 
-`willUpdateValue(_:forKey:)` can replace a `nil` property. Otherwise `nil` is dropped. A returned value is inserted directly. `Mirror` does not report computed properties or access level, so `private` stored properties are included and computed properties are not.
+`willUpdateValue(_:forKey:)` sees every stored property. A returned value is inserted directly. When it returns `nil`, `nil` properties and non-conforming values are dropped. `Mirror` does not report computed properties or access level, so `private` stored properties are included and computed properties are not.
 
 A class instance that points back to one already being exported is visited again. Reflect does not track the export stack, so a reference cycle recurses until the stack overflows.
 
