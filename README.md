@@ -1,7 +1,7 @@
 # Reflect
 
 ![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange.svg)
-![Platform](https://img.shields.io/badge/Platform-Apple-lightgrey.svg)
+![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS%20%7C%20visionOS-lightgrey.svg)
 ![Version](https://img.shields.io/badge/Version-2.0.0-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![SPM](https://img.shields.io/badge/SPM-supported-brightgreen.svg)
