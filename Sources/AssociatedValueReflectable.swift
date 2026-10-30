@@ -36,18 +36,27 @@ public extension AssociatedValueReflectable where Self: RawRepresentable, RawVal
 // MARK: - Collections
 
 extension Array: AssociatedValueReflectable where Element: AssociatedValueReflectable {
-    /// Element order is preserved. A `nil` element becomes `NSNull`.
-    public var associatedValue: Any { return map { $0.associatedValue } }
+    /// Element order is preserved. `nil` elements are omitted.
+    public var associatedValue: Any { return compactMap(ReflectExport.omittingNil) }
 }
 
 extension Set: AssociatedValueReflectable where Element: AssociatedValueReflectable {
-    /// `Set` has no order, so the resulting array order is not stable.
-    public var associatedValue: Any { return map { $0.associatedValue } }
+    /// `Set` has no order, so the resulting array order is not stable. `nil` elements are omitted.
+    public var associatedValue: Any { return compactMap(ReflectExport.omittingNil) }
 }
 
 extension Dictionary: AssociatedValueReflectable where Value: AssociatedValueReflectable {
-    /// Keys stay as declared. A `nil` value becomes `NSNull` rather than being removed.
-    public var associatedValue: Any { return mapValues { $0.associatedValue } }
+    /// Keys stay as declared. A `nil` value is removed instead of being written as `NSNull`.
+    public var associatedValue: Any {
+        var exported: [Key: Any] = [:]
+        exported.reserveCapacity(count)
+        for (key, value) in self {
+            if let exportedValue = ReflectExport.omittingNil(value) {
+                exported[key] = exportedValue
+            }
+        }
+        return exported
+    }
 }
 
 // MARK: - Optional
@@ -62,12 +71,22 @@ extension Optional: NilCheckable {
 }
 
 extension Optional: AssociatedValueReflectable where Wrapped: AssociatedValueReflectable {
-    /// `nil` becomes `NSNull()` (e.g. inside arrays); `DictionaryReflectable` skips nil properties.
+    /// Exports the wrapped value. Models and collections skip `nil` before reading this property.
     public var associatedValue: Any {
         switch self {
         case .some(let value): return value.associatedValue
         case .none: return NSNull()
         }
+    }
+}
+
+enum ReflectExport {
+    /// Drops `nil`. `associatedValue` of a nil optional is `NSNull`, so callers must check first.
+    static func omittingNil(_ value: AssociatedValueReflectable) -> Any? {
+        if let optional = value as? NilCheckable, optional.isNil {
+            return nil
+        }
+        return value.associatedValue
     }
 }
 

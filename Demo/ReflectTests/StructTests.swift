@@ -119,14 +119,11 @@ class StructTests: XCTestCase {
         ).reflectToDictionary()
 
         XCTAssertNil(dict["name"])
-        let items = try XCTUnwrap(dict["items"] as? [Any])
-        XCTAssertEqual(items[0] as? String, "a")
-        XCTAssertTrue(items[1] is NSNull)
-        XCTAssertEqual(items[2] as? String, "b")
+        XCTAssertEqual(dict["items"] as? [String], ["a", "b"])
 
         let flags = try XCTUnwrap(dict["flags"] as? [String: Any])
         XCTAssertEqual(flags["on"] as? String, "yes")
-        XCTAssertTrue(flags["off"] is NSNull)
+        XCTAssertNil(flags["off"])
 
         let scores = try XCTUnwrap(dict["scores"] as? [Int: Any])
         XCTAssertEqual(scores[1] as? String, "one")
@@ -140,6 +137,22 @@ class StructTests: XCTestCase {
         XCTAssertNil(dict["token"])
         XCTAssertNil(dict["payload"])
         XCTAssertNil(dict["price"])
+    }
+
+    struct NullName: DictionaryReflectable {
+        let name: String?
+
+        func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)? {
+            if key == "name" {
+                return (key, NSNull())
+            }
+            return nil
+        }
+    }
+
+    func testNilPropertyBecomesNSNullOnlyWhenRequested() {
+        let dict = NullName(name: nil).reflectToDictionary()
+        XCTAssertTrue(dict["name"] is NSNull)
     }
 
     enum RawColor: Int, AssociatedValueReflectable {

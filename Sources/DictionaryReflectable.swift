@@ -12,8 +12,8 @@ public protocol DictionaryReflectable: AssociatedValueReflectable {
     
     /// Returns stored properties as `[String: Any]`.
     ///
-    /// Nested models become dictionaries. `nil` properties and values that do not
-    /// conform to `AssociatedValueReflectable` are omitted.
+    /// Nested models become dictionaries. `nil` values are omitted. A value that does not
+    /// conform to `AssociatedValueReflectable` is omitted.
     ///
     /// Example:
     /// ```
@@ -38,9 +38,10 @@ public protocol DictionaryReflectable: AssociatedValueReflectable {
     /// passed through `associatedValue`, so return an already-exported dictionary when
     /// a nested model should not remain an object.
     ///
-    /// A `nil` property is omitted before this method is called. A value that does not
+    /// A `nil` property is omitted unless this method returns a replacement, such as
+    /// `(key, NSNull())`, when the encoded JSON must contain `null`. A value that does not
     /// conform to `AssociatedValueReflectable` (including `Date`, `URL`, `UUID`, `Data`,
-    /// and `Decimal`) is also skipped, so this method does not see it.
+    /// and `Decimal`) is skipped, so this method does not see it.
     ///
     /// Swift installs this requirement on the class that declares `DictionaryReflectable`.
     /// A subclass implementation is used only when it `override`s a superclass implementation.
@@ -94,10 +95,16 @@ public extension DictionaryReflectable {
 
         for child in mirror.children {
             guard let key = child.label else { continue }
-            if let optional = child.value as? NilCheckable, optional.isNil { continue }
-            guard let value = child.value as? AssociatedValueReflectable else { continue }
+            let raw = child.value
+            if let optional = raw as? NilCheckable, optional.isNil {
+                if let (newKey, newValue) = willUpdateValue(raw, forKey: key), !newKey.isEmpty, let newValue {
+                    result[newKey] = newValue
+                }
+                continue
+            }
+            guard let value = raw as? AssociatedValueReflectable else { continue }
 
-            if let (newKey, newValue) = willUpdateValue(child.value, forKey: key), !newKey.isEmpty {
+            if let (newKey, newValue) = willUpdateValue(raw, forKey: key), !newKey.isEmpty {
                 if let newValue = newValue {
                     result[newKey] = newValue
                 }

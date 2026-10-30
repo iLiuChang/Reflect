@@ -19,7 +19,7 @@ Turn a Swift model into a `[String: Any]` dictionary with `Mirror`. Conform to `
 - **Stored properties** — reads `struct` and `class` stored properties, including `private` ones
 - **Nested models** — a `DictionaryReflectable` property is exported as `[String: Any]`
 - **Collections** — `Array`, `Set`, and `Dictionary` export elements that conform to `AssociatedValueReflectable`
-- **Optionals** — a `nil` property is omitted; a `nil` element inside a collection becomes `NSNull`
+- **Optionals** — `nil` properties and `nil` collection elements are omitted
 - **Raw enums** — declare `AssociatedValueReflectable` and the raw value is exported
 - **Key and value changes** — implement `willUpdateValue(_:forKey:)` to rename a key, replace a value, or drop a property
 - **Inheritance** — superclass properties are written first, so a subclass value replaces the same key
@@ -98,7 +98,7 @@ let dict = Profile(title: "profile", person: person).reflectToDictionary()
 
 ### Optional, Array, and Dictionary
 
-A `nil` stored property is left out. Inside an `Array` or `Dictionary`, `nil` becomes `NSNull`. Dictionary keys stay as declared, so an `Int` key remains an `Int`.
+A `nil` stored property is left out. `nil` elements in an `Array`, `Set`, or `Dictionary` are left out too. Dictionary keys stay as declared, so an `Int` key remains an `Int`.
 
 ```swift
 struct Box: DictionaryReflectable {
@@ -109,8 +109,19 @@ struct Box: DictionaryReflectable {
 
 let dict = Box(name: nil, items: ["a", nil], scores: [1: "one"]).reflectToDictionary()
 // "name" is absent
-// "items" is ["a", NSNull()]
+// "items" is ["a"]
 // "scores" is [1: "one"]
+```
+
+Return `NSNull()` from `willUpdateValue` when a `nil` property must be sent as JSON `null`:
+
+```swift
+func willUpdateValue(_ value: Any, forKey key: String) -> (String, Any?)? {
+    if key == "name" {
+        return (key, NSNull())
+    }
+    return nil
+}
 ```
 
 `Set` becomes an array. The array has no stable order.
@@ -167,7 +178,7 @@ let dict = person.reflectToDictionary()
 
 Return `nil` to keep the default export. The value you return is stored as given. Return `friend.reflectToDictionary()` when a renamed nested model should still be a dictionary.
 
-`willUpdateValue` is not called for a `nil` property or for a type that does not conform to `AssociatedValueReflectable`. On a class, implement it on the class that declares `DictionaryReflectable`. A subclass method is used only when it overrides that implementation.
+`willUpdateValue` is called for a `nil` property, so it can replace that property with `NSNull()`. It is not called for a type that does not conform to `AssociatedValueReflectable`. On a class, implement it on the class that declares `DictionaryReflectable`. A subclass method is used only when it overrides that implementation.
 
 ## API Reference
 
@@ -189,19 +200,17 @@ These types conform and export themselves: `Int`, `Int8`, `Int16`, `Int32`, `Int
 
 | Conformance | Export |
 |---|---|
-| `Array` where `Element: AssociatedValueReflectable` | An array of each element's `associatedValue`. Order is preserved. |
-| `Set` where `Element: AssociatedValueReflectable` | An array of each element's `associatedValue`. Order is not stable. |
-| `Dictionary` where `Value: AssociatedValueReflectable` | The same keys, with each value replaced by its `associatedValue`. |
-| `Optional` where `Wrapped: AssociatedValueReflectable` | The wrapped `associatedValue`, or `NSNull` when the optional is `nil`. |
+| `Array` where `Element: AssociatedValueReflectable` | An array of each element's `associatedValue`, without `nil` elements. Order is preserved. |
+| `Set` where `Element: AssociatedValueReflectable` | An array of each element's `associatedValue`, without `nil` elements. Order is not stable. |
+| `Dictionary` where `Value: AssociatedValueReflectable` | The same keys, with each non-`nil` value replaced by its `associatedValue`. |
+| `Optional` where `Wrapped: AssociatedValueReflectable` | The wrapped `associatedValue`. `nil` is omitted. |
 | `RawRepresentable` where `RawValue: AssociatedValueReflectable` | `rawValue.associatedValue`. Declare conformance on the type. |
-
-A model property that is `nil` is omitted before `Optional.associatedValue` is used, so it does not become `NSNull`.
 
 ## Architecture
 
 `reflectToDictionary()` walks the stored properties of `Mirror(reflecting:)`. Superclass properties are collected first, then the current type's properties overwrite the same keys. Each value that conforms to `AssociatedValueReflectable` is replaced by `associatedValue`, which is how nested models and collections expand.
 
-`willUpdateValue(_:forKey:)` runs only after a non-`nil` conforming value is found. A returned value is inserted directly. `Mirror` does not report computed properties or access level, so `private` stored properties are included and computed properties are not.
+`willUpdateValue(_:forKey:)` can replace a `nil` property. Otherwise `nil` is dropped. A returned value is inserted directly. `Mirror` does not report computed properties or access level, so `private` stored properties are included and computed properties are not.
 
 A class instance that points back to one already being exported is visited again. Reflect does not track the export stack, so a reference cycle recurses until the stack overflows.
 
